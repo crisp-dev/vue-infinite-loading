@@ -7,7 +7,7 @@ function _arrayWithHoles(arr) {
 }
 
 function _iterableToArrayLimit(arr, i) {
-  var _i = arr && (typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]);
+  var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
 
   if (_i == null) return;
   var _arr = [];
@@ -121,18 +121,20 @@ E.prototype = {
 
 var tinyEmitter = E;
 var TinyEmitter = E;
-tinyEmitter.TinyEmitter = TinyEmitter;var instance = new tinyEmitter();var eventHub = {
+tinyEmitter.TinyEmitter = TinyEmitter;var instance = new tinyEmitter();
+
+var emitter = instance;var eventHub = {
   $on: function $on() {
-    return instance.on.apply(instance, arguments);
+    return emitter.on.apply(emitter, arguments);
   },
   $once: function $once() {
-    return instance.once.apply(instance, arguments);
+    return emitter.once.apply(emitter, arguments);
   },
   $off: function $off() {
-    return instance.off.apply(instance, arguments);
+    return emitter.off.apply(emitter, arguments);
   },
   $emit: function $emit() {
-    return instance.emit.apply(instance, arguments);
+    return emitter.emit.apply(emitter, arguments);
   }
 };var SPINNERS = ['bubbles', 'circles', 'spiral', 'wavedots'];
 var script$1 = /* #__PURE__ */vue.defineComponent({
@@ -279,9 +281,7 @@ var evt3rdArg = function () {
  */
 
 var WARNINGS = {
-  STATE_CHANGER: ['emit `loaded` and `complete` event through component instance of `$refs` may cause error, so it will be deprecated soon, please use the `$state` argument instead (`$state` just the special `$event` variable):', '\ntemplate:', '<infinite-loading @infinite="infiniteHandler"></infinite-loading>', "\nscript:\n...\ninfiniteHandler($state) {\n  ajax('https://www.example.com/api/news')\n    .then((res) => {\n      if (res.data.length) {\n        $state.loaded();\n      } else {\n        $state.complete();\n      }\n    });\n}\n...", '', 'more details: https://github.com/PeachScript/vue-infinite-loading/issues/57#issuecomment-324370549'].join('\n'),
-  INFINITE_EVENT: '`:on-infinite` property will be deprecated soon, please use `@infinite` event instead.',
-  IDENTIFIER: 'the `reset` event will be deprecated soon, please reset this component by change the `identifier` property.'
+  INFINITE_EVENT: '`:on-infinite` property will be deprecated soon, please use `@infinite` event instead.'
 };
 /**
  * error messages
@@ -470,8 +470,7 @@ function isVisible(elm) {
         var name = kebabCase(key);
 
         if ( // no slot and the configured default slot is not a Vue component
-        !_this.$slots[name] && !config.slots[key].render || // has slot and slot is pure text node
-        _this.$slots[name] && _this.$slots[name]()[0].type === vue.Text) {
+        !_this.$slots[name] && !config.slots[key].render || _this.$slots[name] && _this.$slots[name]()[0].type === vue.Text) {
           // only apply default styles for pure text slot
           styles[key] = SLOT_STYLES;
         }
@@ -526,7 +525,7 @@ function isVisible(elm) {
 
       _this2.scrollParent.addEventListener('scroll', _this2.scrollHandler, evt3rdArg);
     }, 1);
-    eventHub.$on('$InfiniteLoading:loaded', function (ev) {
+    eventHub.$on('$InfiniteLoading:loaded', function () {
       _this2.isFirstLoad = false;
 
       if (_this2.direction === 'top') {
@@ -539,12 +538,8 @@ function isVisible(elm) {
       if (_this2.status === STATUS.LOADING) {
         _this2.$nextTick(_this2.attemptLoad.bind(null, true));
       }
-
-      if (!ev || ev.target !== _this2) {
-        warn(WARNINGS.STATE_CHANGER);
-      }
     });
-    eventHub.$on('$InfiniteLoading:complete', function (ev) {
+    eventHub.$on('$InfiniteLoading:complete', function () {
       _this2.status = STATUS.COMPLETE; // force re-complation computed properties to fix the problem of get slot text delay
 
       _this2.$nextTick(function () {
@@ -552,12 +547,8 @@ function isVisible(elm) {
       });
 
       _this2.scrollParent.removeEventListener('scroll', _this2.scrollHandler, evt3rdArg);
-
-      if (!ev || ev.target !== _this2) {
-        warn(WARNINGS.STATE_CHANGER);
-      }
     });
-    eventHub.$on('$InfiniteLoading:reset', function (ev) {
+    eventHub.$on('$InfiniteLoading:reset', function () {
       _this2.status = STATUS.READY;
       _this2.isFirstLoad = true;
       scrollBarStorage.remove(_this2.scrollParent);
@@ -570,10 +561,6 @@ function isVisible(elm) {
 
         _this2.scrollHandler();
       }, 1);
-
-      if (!ev || ev.target !== _this2) {
-        warn(WARNINGS.IDENTIFIER);
-      }
     });
     /**
      * change state for this component, pass to the callback
@@ -720,9 +707,9 @@ function isVisible(elm) {
       this.scrollParent.removeEventListener('scroll', this.scrollHandler, evt3rdArg);
     }
   }
-});var _withId = /*#__PURE__*/vue.withScopeId("data-v-c0896196");
+});var _withId = /*#__PURE__*/vue.withScopeId("data-v-a3e31e62");
 
-vue.pushScopeId("data-v-c0896196");
+vue.pushScopeId("data-v-a3e31e62");
 
 var _hoisted_1 = {
   class: "infinite-loading-container"
@@ -735,7 +722,8 @@ vue.popScopeId();
 var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data, $options) {
   var _component_spinner = vue.resolveComponent("spinner");
 
-  return vue.openBlock(), vue.createBlock("div", _hoisted_1, [vue.withDirectives(vue.createVNode("div", {
+  return vue.openBlock(), vue.createBlock("div", _hoisted_1, [_ctx.isShowSpinner ? (vue.openBlock(), vue.createBlock("div", {
+    key: 0,
     class: "infinite-status-prompt",
     style: _ctx.slotStyles.spinner
   }, [vue.renderSlot(_ctx.$slots, "spinner", {
@@ -744,7 +732,8 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
     return [vue.createVNode(_component_spinner, {
       spinner: _ctx.spinner
     }, null, 8, ["spinner"])];
-  })], 4), [[vue.vShow, _ctx.isShowSpinner]]), vue.withDirectives(vue.createVNode("div", {
+  })], 4)) : vue.createCommentVNode("", true), _ctx.isShowNoResults ? (vue.openBlock(), vue.createBlock("div", {
+    key: 1,
     class: "infinite-status-prompt",
     style: _ctx.slotStyles.noResults
   }, [vue.renderSlot(_ctx.$slots, "no-results", {}, function () {
@@ -753,7 +742,8 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
     })) : (vue.openBlock(), vue.createBlock(vue.Fragment, {
       key: 1
     }, [vue.createTextVNode(vue.toDisplayString(_ctx.slots.noResults), 1)], 64))];
-  })], 4), [[vue.vShow, _ctx.isShowNoResults]]), vue.withDirectives(vue.createVNode("div", {
+  })], 4)) : vue.createCommentVNode("", true), _ctx.isShowNoMore ? (vue.openBlock(), vue.createBlock("div", {
+    key: 2,
     class: "infinite-status-prompt",
     style: _ctx.slotStyles.noMore
   }, [vue.renderSlot(_ctx.$slots, "no-more", {}, function () {
@@ -762,7 +752,8 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
     })) : (vue.openBlock(), vue.createBlock(vue.Fragment, {
       key: 1
     }, [vue.createTextVNode(vue.toDisplayString(_ctx.slots.noMore), 1)], 64))];
-  })], 4), [[vue.vShow, _ctx.isShowNoMore]]), vue.withDirectives(vue.createVNode("div", {
+  })], 4)) : vue.createCommentVNode("", true), _ctx.isShowError ? (vue.openBlock(), vue.createBlock("div", {
+    key: 3,
     class: "infinite-status-prompt",
     style: _ctx.slotStyles.error
   }, [vue.renderSlot(_ctx.$slots, "error", {
@@ -780,10 +771,10 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
       }),
       textContent: vue.toDisplayString(_ctx.slots.errorBtnText)
     }, null, 8, ["textContent"])], 64))];
-  })], 4), [[vue.vShow, _ctx.isShowError]])]);
-});var css_248z = ".infinite-loading-container[data-v-c0896196] {\n  clear: both;\n  text-align: center;\n}\n.infinite-loading-container[data-v-c0896196] *[class^=loading-] {\n  display: inline-block;\n  margin: 5px 0;\n  width: 28px;\n  height: 28px;\n  font-size: 28px;\n  line-height: 28px;\n  border-radius: 50%;\n}\n.btn-try-infinite[data-v-c0896196] {\n  margin-top: 5px;\n  padding: 5px 10px;\n  color: #999;\n  font-size: 14px;\n  line-height: 1;\n  background: transparent;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  outline: none;\n  cursor: pointer;\n}\n.btn-try-infinite[data-v-c0896196]:not(:active):hover {\n  opacity: 0.8;\n}\n";
+  })], 4)) : vue.createCommentVNode("", true)]);
+});var css_248z = ".infinite-loading-container[data-v-a3e31e62] {\n  clear: both;\n  text-align: center;\n}\n.infinite-loading-container[data-v-a3e31e62] *[class^=loading-] {\n  display: inline-block;\n  margin: 5px 0;\n  width: 28px;\n  height: 28px;\n  font-size: 28px;\n  line-height: 28px;\n  border-radius: 50%;\n}\n.btn-try-infinite[data-v-a3e31e62] {\n  margin-top: 5px;\n  padding: 5px 10px;\n  color: #999;\n  font-size: 14px;\n  line-height: 1;\n  background: transparent;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  outline: none;\n  cursor: pointer;\n}\n.btn-try-infinite[data-v-a3e31e62]:not(:active):hover {\n  opacity: 0.8;\n}\n";
 styleInject(css_248z);script.render = render;
-script.__scopeId = "data-v-c0896196";// Import vue component
+script.__scopeId = "data-v-a3e31e62";// Import vue component
 // IIFE injects install function into component, allowing component
 // to be registered via Vue.use() as well as Vue.component(),
 

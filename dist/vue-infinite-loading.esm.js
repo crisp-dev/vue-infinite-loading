@@ -1,4 +1,4 @@
-import { defineComponent, pushScopeId, popScopeId, openBlock, createBlock, Fragment, renderList, createVNode, createCommentVNode, withScopeId, Text, resolveComponent, withDirectives, renderSlot, vShow, resolveDynamicComponent, createTextVNode, toDisplayString } from 'vue';
+import { defineComponent, pushScopeId, popScopeId, openBlock, createBlock, Fragment, renderList, createVNode, createCommentVNode, withScopeId, Text, resolveComponent, renderSlot, resolveDynamicComponent, createTextVNode, toDisplayString } from 'vue';
 
 function E () {
   // Keep this empty so it's easier to inherit from
@@ -70,11 +70,13 @@ tinyEmitter.TinyEmitter = TinyEmitter;
 
 var instance = new tinyEmitter();
 
+var emitter = instance;
+
 var eventHub = {
-  $on: (...args) => instance.on(...args),
-  $once: (...args) => instance.once(...args),
-  $off: (...args) => instance.off(...args),
-  $emit: (...args) => instance.emit(...args)
+  $on: (...args) => emitter.on(...args),
+  $once: (...args) => emitter.once(...args),
+  $off: (...args) => emitter.off(...args),
+  $emit: (...args) => emitter.emit(...args)
 };
 
 const SPINNERS = ['bubbles', 'circles', 'spiral', 'wavedots'];
@@ -234,22 +236,7 @@ const evt3rdArg = (() => {
  */
 
 const WARNINGS = {
-  STATE_CHANGER: ['emit `loaded` and `complete` event through component instance of `$refs` may cause error, so it will be deprecated soon, please use the `$state` argument instead (`$state` just the special `$event` variable):', '\ntemplate:', '<infinite-loading @infinite="infiniteHandler"></infinite-loading>', `
-script:
-...
-infiniteHandler($state) {
-  ajax('https://www.example.com/api/news')
-    .then((res) => {
-      if (res.data.length) {
-        $state.loaded();
-      } else {
-        $state.complete();
-      }
-    });
-}
-...`, '', 'more details: https://github.com/PeachScript/vue-infinite-loading/issues/57#issuecomment-324370549'].join('\n'),
-  INFINITE_EVENT: '`:on-infinite` property will be deprecated soon, please use `@infinite` event instead.',
-  IDENTIFIER: 'the `reset` event will be deprecated soon, please reset this component by change the `identifier` property.'
+  INFINITE_EVENT: '`:on-infinite` property will be deprecated soon, please use `@infinite` event instead.'
 };
 /**
  * error messages
@@ -462,8 +449,7 @@ var script = /* #__PURE__ */defineComponent({
         const name = kebabCase(key);
 
         if ( // no slot and the configured default slot is not a Vue component
-        !this.$slots[name] && !config.slots[key].render || // has slot and slot is pure text node
-        this.$slots[name] && this.$slots[name]()[0].type === Text) {
+        !this.$slots[name] && !config.slots[key].render || this.$slots[name] && this.$slots[name]()[0].type === Text) {
           // only apply default styles for pure text slot
           styles[key] = SLOT_STYLES;
         }
@@ -518,7 +504,7 @@ var script = /* #__PURE__ */defineComponent({
       this.scrollHandler();
       this.scrollParent.addEventListener('scroll', this.scrollHandler, evt3rdArg);
     }, 1);
-    eventHub.$on('$InfiniteLoading:loaded', ev => {
+    eventHub.$on('$InfiniteLoading:loaded', () => {
       this.isFirstLoad = false;
 
       if (this.direction === 'top') {
@@ -531,24 +517,16 @@ var script = /* #__PURE__ */defineComponent({
       if (this.status === STATUS.LOADING) {
         this.$nextTick(this.attemptLoad.bind(null, true));
       }
-
-      if (!ev || ev.target !== this) {
-        warn(WARNINGS.STATE_CHANGER);
-      }
     });
-    eventHub.$on('$InfiniteLoading:complete', ev => {
+    eventHub.$on('$InfiniteLoading:complete', () => {
       this.status = STATUS.COMPLETE; // force re-complation computed properties to fix the problem of get slot text delay
 
       this.$nextTick(() => {
         this.$forceUpdate();
       });
       this.scrollParent.removeEventListener('scroll', this.scrollHandler, evt3rdArg);
-
-      if (!ev || ev.target !== this) {
-        warn(WARNINGS.STATE_CHANGER);
-      }
     });
-    eventHub.$on('$InfiniteLoading:reset', ev => {
+    eventHub.$on('$InfiniteLoading:reset', () => {
       this.status = STATUS.READY;
       this.isFirstLoad = true;
       scrollBarStorage.remove(this.scrollParent);
@@ -558,10 +536,6 @@ var script = /* #__PURE__ */defineComponent({
         throttleer.reset();
         this.scrollHandler();
       }, 1);
-
-      if (!ev || ev.target !== this) {
-        warn(WARNINGS.IDENTIFIER);
-      }
     });
     /**
      * change state for this component, pass to the callback
@@ -709,9 +683,9 @@ var script = /* #__PURE__ */defineComponent({
 
 });
 
-const _withId = /*#__PURE__*/withScopeId("data-v-c0896196");
+const _withId = /*#__PURE__*/withScopeId("data-v-a3e31e62");
 
-pushScopeId("data-v-c0896196");
+pushScopeId("data-v-a3e31e62");
 
 const _hoisted_1 = {
   class: "infinite-loading-container"
@@ -724,28 +698,32 @@ popScopeId();
 const render = /*#__PURE__*/_withId((_ctx, _cache, $props, $setup, $data, $options) => {
   const _component_spinner = resolveComponent("spinner");
 
-  return openBlock(), createBlock("div", _hoisted_1, [withDirectives(createVNode("div", {
+  return openBlock(), createBlock("div", _hoisted_1, [_ctx.isShowSpinner ? (openBlock(), createBlock("div", {
+    key: 0,
     class: "infinite-status-prompt",
     style: _ctx.slotStyles.spinner
   }, [renderSlot(_ctx.$slots, "spinner", {
     isFirstLoad: _ctx.isFirstLoad
   }, () => [createVNode(_component_spinner, {
     spinner: _ctx.spinner
-  }, null, 8, ["spinner"])])], 4), [[vShow, _ctx.isShowSpinner]]), withDirectives(createVNode("div", {
+  }, null, 8, ["spinner"])])], 4)) : createCommentVNode("", true), _ctx.isShowNoResults ? (openBlock(), createBlock("div", {
+    key: 1,
     class: "infinite-status-prompt",
     style: _ctx.slotStyles.noResults
   }, [renderSlot(_ctx.$slots, "no-results", {}, () => [_ctx.slots.noResults.render ? (openBlock(), createBlock(resolveDynamicComponent(_ctx.slots.noResults), {
     key: 0
   })) : (openBlock(), createBlock(Fragment, {
     key: 1
-  }, [createTextVNode(toDisplayString(_ctx.slots.noResults), 1)], 64))])], 4), [[vShow, _ctx.isShowNoResults]]), withDirectives(createVNode("div", {
+  }, [createTextVNode(toDisplayString(_ctx.slots.noResults), 1)], 64))])], 4)) : createCommentVNode("", true), _ctx.isShowNoMore ? (openBlock(), createBlock("div", {
+    key: 2,
     class: "infinite-status-prompt",
     style: _ctx.slotStyles.noMore
   }, [renderSlot(_ctx.$slots, "no-more", {}, () => [_ctx.slots.noMore.render ? (openBlock(), createBlock(resolveDynamicComponent(_ctx.slots.noMore), {
     key: 0
   })) : (openBlock(), createBlock(Fragment, {
     key: 1
-  }, [createTextVNode(toDisplayString(_ctx.slots.noMore), 1)], 64))])], 4), [[vShow, _ctx.isShowNoMore]]), withDirectives(createVNode("div", {
+  }, [createTextVNode(toDisplayString(_ctx.slots.noMore), 1)], 64))])], 4)) : createCommentVNode("", true), _ctx.isShowError ? (openBlock(), createBlock("div", {
+    key: 3,
     class: "infinite-status-prompt",
     style: _ctx.slotStyles.error
   }, [renderSlot(_ctx.$slots, "error", {
@@ -759,14 +737,14 @@ const render = /*#__PURE__*/_withId((_ctx, _cache, $props, $setup, $data, $optio
     class: "btn-try-infinite",
     onClick: _cache[1] || (_cache[1] = (...args) => _ctx.attemptLoad && _ctx.attemptLoad(...args)),
     textContent: toDisplayString(_ctx.slots.errorBtnText)
-  }, null, 8, ["textContent"])], 64))])], 4), [[vShow, _ctx.isShowError]])]);
+  }, null, 8, ["textContent"])], 64))])], 4)) : createCommentVNode("", true)]);
 });
 
-var css_248z = ".infinite-loading-container[data-v-c0896196] {\n  clear: both;\n  text-align: center;\n}\n.infinite-loading-container[data-v-c0896196] *[class^=loading-] {\n  display: inline-block;\n  margin: 5px 0;\n  width: 28px;\n  height: 28px;\n  font-size: 28px;\n  line-height: 28px;\n  border-radius: 50%;\n}\n.btn-try-infinite[data-v-c0896196] {\n  margin-top: 5px;\n  padding: 5px 10px;\n  color: #999;\n  font-size: 14px;\n  line-height: 1;\n  background: transparent;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  outline: none;\n  cursor: pointer;\n}\n.btn-try-infinite[data-v-c0896196]:not(:active):hover {\n  opacity: 0.8;\n}\n";
+var css_248z = ".infinite-loading-container[data-v-a3e31e62] {\n  clear: both;\n  text-align: center;\n}\n.infinite-loading-container[data-v-a3e31e62] *[class^=loading-] {\n  display: inline-block;\n  margin: 5px 0;\n  width: 28px;\n  height: 28px;\n  font-size: 28px;\n  line-height: 28px;\n  border-radius: 50%;\n}\n.btn-try-infinite[data-v-a3e31e62] {\n  margin-top: 5px;\n  padding: 5px 10px;\n  color: #999;\n  font-size: 14px;\n  line-height: 1;\n  background: transparent;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  outline: none;\n  cursor: pointer;\n}\n.btn-try-infinite[data-v-a3e31e62]:not(:active):hover {\n  opacity: 0.8;\n}\n";
 styleInject(css_248z);
 
 script.render = render;
-script.__scopeId = "data-v-c0896196";
+script.__scopeId = "data-v-a3e31e62";
 
 // Import vue component
 // IIFE injects install function into component, allowing component
@@ -785,4 +763,4 @@ var entry_esm = /* #__PURE__ */(() => {
 // also be used as directives, etc. - eg. import { RollupDemoDirective } from 'rollup-demo';
 // export const RollupDemoDirective = directive;
 
-export default entry_esm;
+export { entry_esm as default };

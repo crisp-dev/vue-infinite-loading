@@ -89,8 +89,9 @@
     "minimist": "^1.2.5",
     "mocha": "^5.2.0",
     "phantomjs-prebuilt": "^2.1.15",
-    "postcss": "^8.2.3",
-    "rollup": "^2.36.1",
+    "postcss": "^8.1.7",
+    "postcss-loader": "^4.0.4",
+    "rollup": "^2.45.2",
     "rollup-plugin-postcss": "^4.0.0",
     "rollup-plugin-scss": "^2.6.1",
     "rollup-plugin-terser": "^7.0.2",
@@ -103,7 +104,8 @@
     "webpack-dev-server": "^3.1.8"
   },
   "peerDependencies": {
-    "vue": "^3.0.5"
+    "vue": "^3.0.5",
+    "postcss": "^8.1.7"
   },
   "license": "MIT",
   "commitlint": {
