@@ -1,7 +1,8 @@
 <script>
 import { defineComponent, Text } from 'vue';
 
-import eventHub from '../eventHub';
+import mitt from 'mitt';
+
 import Spinner from './Spinner.vue';
 
 import config, {
@@ -96,6 +97,8 @@ export default /* #__PURE__ */defineComponent({
     },
   },
   mounted() {
+    this.emitter = mitt();
+
     this.$watch('forceUseInfiniteWrapper', () => {
       this.scrollParent = this.getScrollParent();
     }, { immediate: true });
@@ -115,7 +118,7 @@ export default /* #__PURE__ */defineComponent({
       this.scrollParent.addEventListener('scroll', this.scrollHandler, evt3rdArg);
     }, 1);
 
-    eventHub.$on('$InfiniteLoading:loaded', () => {
+    this.emitter.on('$InfiniteLoading:loaded', () => {
       this.isFirstLoad = false;
 
       if (this.direction === 'top') {
@@ -130,7 +133,7 @@ export default /* #__PURE__ */defineComponent({
       }
     });
 
-    eventHub.$on('$InfiniteLoading:complete', () => {
+    this.emitter.on('$InfiniteLoading:complete', () => {
       this.status = STATUS.COMPLETE;
 
       // force re-complation computed properties to fix the problem of get slot text delay
@@ -141,7 +144,7 @@ export default /* #__PURE__ */defineComponent({
       this.scrollParent.removeEventListener('scroll', this.scrollHandler, evt3rdArg);
     });
 
-    eventHub.$on('$InfiniteLoading:reset', () => {
+    this.emitter.on('$InfiniteLoading:reset', () => {
       this.status = STATUS.READY;
       this.isFirstLoad = true;
       scrollBarStorage.remove(this.scrollParent);
@@ -160,15 +163,15 @@ export default /* #__PURE__ */defineComponent({
     this.stateChanger = {
       loaded: () => {
         this.$emit('$InfiniteLoading:loaded', { target: this });
-        eventHub.$emit('$InfiniteLoading:loaded', { target: this });
+        this.emitter.emit('$InfiniteLoading:loaded', { target: this });
       },
       complete: () => {
         this.$emit('$InfiniteLoading:complete', { target: this });
-        eventHub.$emit('$InfiniteLoading:complete', { target: this });
+        this.emitter.emit('$InfiniteLoading:complete', { target: this });
       },
       reset: () => {
         this.$emit('$InfiniteLoading:reset', { target: this });
-        eventHub.$emit('$InfiniteLoading:reset', { target: this });
+        this.emitter.emit('$InfiniteLoading:reset', { target: this });
       },
       error: () => {
         this.status = STATUS.ERROR;

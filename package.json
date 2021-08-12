@@ -50,7 +50,7 @@
   },
   "homepage": "https://github.com/PeachScript/vue-infinite-loading",
   "dependencies": {
-    "tiny-emitter": "^2.1.0"
+    "mitt": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

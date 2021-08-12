@@ -1,4 +1,4 @@
-'use strict';var vue=require('vue');function _slicedToArray(arr, i) {
+'use strict';var vue=require('vue'),mitt=require('mitt');function _interopDefaultLegacy(e){return e&&typeof e==='object'&&'default'in e?e:{'default':e}}var mitt__default=/*#__PURE__*/_interopDefaultLegacy(mitt);function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
 }
 
@@ -55,88 +55,7 @@ function _arrayLikeToArray(arr, len) {
 
 function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}function E () {
-  // Keep this empty so it's easier to inherit from
-  // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
-}
-
-E.prototype = {
-  on: function (name, callback, ctx) {
-    var e = this.e || (this.e = {});
-
-    (e[name] || (e[name] = [])).push({
-      fn: callback,
-      ctx: ctx
-    });
-
-    return this;
-  },
-
-  once: function (name, callback, ctx) {
-    var self = this;
-    function listener () {
-      self.off(name, listener);
-      callback.apply(ctx, arguments);
-    }
-    listener._ = callback;
-    return this.on(name, listener, ctx);
-  },
-
-  emit: function (name) {
-    var data = [].slice.call(arguments, 1);
-    var evtArr = ((this.e || (this.e = {}))[name] || []).slice();
-    var i = 0;
-    var len = evtArr.length;
-
-    for (i; i < len; i++) {
-      evtArr[i].fn.apply(evtArr[i].ctx, data);
-    }
-
-    return this;
-  },
-
-  off: function (name, callback) {
-    var e = this.e || (this.e = {});
-    var evts = e[name];
-    var liveEvents = [];
-
-    if (evts && callback) {
-      for (var i = 0, len = evts.length; i < len; i++) {
-        if (evts[i].fn !== callback && evts[i].fn._ !== callback)
-          liveEvents.push(evts[i]);
-      }
-    }
-
-    // Remove event from queue to prevent memory leak
-    // Suggested by https://github.com/lazd
-    // Ref: https://github.com/scottcorgan/tiny-emitter/commit/c6ebfaa9bc973b33d110a84a307742b7cf94c953#commitcomment-5024910
-
-    (liveEvents.length)
-      ? e[name] = liveEvents
-      : delete e[name];
-
-    return this;
-  }
-};
-
-var tinyEmitter = E;
-var TinyEmitter = E;
-tinyEmitter.TinyEmitter = TinyEmitter;var instance = new tinyEmitter();
-
-var emitter = instance;var eventHub = {
-  $on: function $on() {
-    return emitter.on.apply(emitter, arguments);
-  },
-  $once: function $once() {
-    return emitter.once.apply(emitter, arguments);
-  },
-  $off: function $off() {
-    return emitter.off.apply(emitter, arguments);
-  },
-  $emit: function $emit() {
-    return emitter.emit.apply(emitter, arguments);
-  }
-};var SPINNERS = ['bubbles', 'circles', 'spiral', 'wavedots'];
+}var SPINNERS = ['bubbles', 'circles', 'spiral', 'wavedots'];
 var script$1 = /* #__PURE__ */vue.defineComponent({
   name: 'Spinner',
   props: ['spinner'],
@@ -504,6 +423,7 @@ function isVisible(elm) {
   mounted: function mounted() {
     var _this2 = this;
 
+    this.emitter = mitt__default['default']();
     this.$watch('forceUseInfiniteWrapper', function () {
       _this2.scrollParent = _this2.getScrollParent();
     }, {
@@ -525,7 +445,7 @@ function isVisible(elm) {
 
       _this2.scrollParent.addEventListener('scroll', _this2.scrollHandler, evt3rdArg);
     }, 1);
-    eventHub.$on('$InfiniteLoading:loaded', function () {
+    this.emitter.on('$InfiniteLoading:loaded', function () {
       _this2.isFirstLoad = false;
 
       if (_this2.direction === 'top') {
@@ -539,7 +459,7 @@ function isVisible(elm) {
         _this2.$nextTick(_this2.attemptLoad.bind(null, true));
       }
     });
-    eventHub.$on('$InfiniteLoading:complete', function () {
+    this.emitter.on('$InfiniteLoading:complete', function () {
       _this2.status = STATUS.COMPLETE; // force re-complation computed properties to fix the problem of get slot text delay
 
       _this2.$nextTick(function () {
@@ -548,7 +468,7 @@ function isVisible(elm) {
 
       _this2.scrollParent.removeEventListener('scroll', _this2.scrollHandler, evt3rdArg);
     });
-    eventHub.$on('$InfiniteLoading:reset', function () {
+    this.emitter.on('$InfiniteLoading:reset', function () {
       _this2.status = STATUS.READY;
       _this2.isFirstLoad = true;
       scrollBarStorage.remove(_this2.scrollParent);
@@ -572,7 +492,7 @@ function isVisible(elm) {
           target: _this2
         });
 
-        eventHub.$emit('$InfiniteLoading:loaded', {
+        _this2.emitter.emit('$InfiniteLoading:loaded', {
           target: _this2
         });
       },
@@ -581,7 +501,7 @@ function isVisible(elm) {
           target: _this2
         });
 
-        eventHub.$emit('$InfiniteLoading:complete', {
+        _this2.emitter.emit('$InfiniteLoading:complete', {
           target: _this2
         });
       },
@@ -590,7 +510,7 @@ function isVisible(elm) {
           target: _this2
         });
 
-        eventHub.$emit('$InfiniteLoading:reset', {
+        _this2.emitter.emit('$InfiniteLoading:reset', {
           target: _this2
         });
       },
@@ -707,9 +627,9 @@ function isVisible(elm) {
       this.scrollParent.removeEventListener('scroll', this.scrollHandler, evt3rdArg);
     }
   }
-});var _withId = /*#__PURE__*/vue.withScopeId("data-v-a3e31e62");
+});var _withId = /*#__PURE__*/vue.withScopeId("data-v-7cad9169");
 
-vue.pushScopeId("data-v-a3e31e62");
+vue.pushScopeId("data-v-7cad9169");
 
 var _hoisted_1 = {
   class: "infinite-loading-container"
@@ -772,9 +692,9 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
       textContent: vue.toDisplayString(_ctx.slots.errorBtnText)
     }, null, 8, ["textContent"])], 64))];
   })], 4)) : vue.createCommentVNode("", true)]);
-});var css_248z = ".infinite-loading-container[data-v-a3e31e62] {\n  clear: both;\n  text-align: center;\n}\n.infinite-loading-container[data-v-a3e31e62] *[class^=loading-] {\n  display: inline-block;\n  margin: 5px 0;\n  width: 28px;\n  height: 28px;\n  font-size: 28px;\n  line-height: 28px;\n  border-radius: 50%;\n}\n.btn-try-infinite[data-v-a3e31e62] {\n  margin-top: 5px;\n  padding: 5px 10px;\n  color: #999;\n  font-size: 14px;\n  line-height: 1;\n  background: transparent;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  outline: none;\n  cursor: pointer;\n}\n.btn-try-infinite[data-v-a3e31e62]:not(:active):hover {\n  opacity: 0.8;\n}\n";
+});var css_248z = ".infinite-loading-container[data-v-7cad9169] {\n  clear: both;\n  text-align: center;\n}\n.infinite-loading-container[data-v-7cad9169] *[class^=loading-] {\n  display: inline-block;\n  margin: 5px 0;\n  width: 28px;\n  height: 28px;\n  font-size: 28px;\n  line-height: 28px;\n  border-radius: 50%;\n}\n.btn-try-infinite[data-v-7cad9169] {\n  margin-top: 5px;\n  padding: 5px 10px;\n  color: #999;\n  font-size: 14px;\n  line-height: 1;\n  background: transparent;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  outline: none;\n  cursor: pointer;\n}\n.btn-try-infinite[data-v-7cad9169]:not(:active):hover {\n  opacity: 0.8;\n}\n";
 styleInject(css_248z);script.render = render;
-script.__scopeId = "data-v-a3e31e62";// Import vue component
+script.__scopeId = "data-v-7cad9169";// Import vue component
 // IIFE injects install function into component, allowing component
 // to be registered via Vue.use() as well as Vue.component(),
 
