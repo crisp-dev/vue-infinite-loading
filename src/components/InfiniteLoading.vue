@@ -131,6 +131,11 @@ export default /* #__PURE__ */defineComponent({
       if (this.status === STATUS.LOADING) {
         this.$nextTick(this.attemptLoad.bind(null, true));
       }
+
+      // Force re-attach the scroll listener, in case we manually call the \
+      //   state-changer
+      this.scrollParent.removeEventListener('scroll', this.scrollHandler, evt3rdArg);
+      this.scrollParent.addEventListener('scroll', this.scrollHandler, evt3rdArg);
     });
 
     this.emitter.on('$InfiniteLoading:complete', () => {
