@@ -1,21 +1,29 @@
 {
-  "name": "vue-infinite-loading",
-  "version": "2.4.5",
+  "name": "@crisp-fix/vue-infinite-loading",
+  "version": "2.5.0",
   "description": "An infinite scroll plugin for Vue.js",
   "main": "dist/vue-infinite-loading.esm.js",
   "typings": "types/index.d.ts",
   "files": [
-    "dist/vue-infinite-loading.js",
-    "types/*.d.ts",
-    "src"
+    "dist",
+    "types/*.d.ts"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "mitt": "^3.0.1"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
   "author": {
     "name": "PeachScript",
     "email": "scdzwyxst@gmail.com"
   },
   "scripts": {
     "dev": "webpack-dev-server --config scripts/webpack.config.js --hot --info=false --port 8000",
-    "_build": "NODE_ENV=production webpack --config scripts/webpack.config.js -p --progress --hide-modules",
+    "build": "NODE_ENV=production webpack --config scripts/webpack.config.js -p --progress --hide-modules",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
     "docs:deploy": "bash ./scripts/deploy_docs.sh",
